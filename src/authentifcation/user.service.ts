@@ -105,6 +105,11 @@ export class UserService {
     }
     return user;
   }
+  async getByUsername(username: string): Promise<User | null> {
+    return await this.userRepository.findOne({
+      where: { username: username },
+    });
+  }
   async changePassword(
     oldPassword: string,
     newPassword: string,

@@ -42,3 +42,29 @@ import { DiagramSpecificationModule } from './diagram-specification/diagram-spec
   providers: [AppService, JwtStrategy],
 })
 export class AppModule { }
+
+
+
+import { INestApplication } from '@nestjs/common';
+import { UserService } from './authentifcation/user.service';
+import { SignUpRequest } from './authentifcation/dto/signup.dto';
+
+export async function createDefaultUser(app: INestApplication) {
+  const userService = app.get(UserService);
+
+  const existing = await userService.getByUsername('admin');
+  if (!existing) {
+    const defaultUser: SignUpRequest = {
+      username: 'admin',
+      password: '123456',
+      firstName: 'Админ',
+      lastName: 'Система',
+      role: 'admin',
+    };
+
+    await userService.signUp(defaultUser);
+    console.log('✅ Default admin user created');
+  } else {
+    console.log('ℹ️ Default admin user already exists');
+  }
+}
