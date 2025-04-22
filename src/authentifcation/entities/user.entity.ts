@@ -21,6 +21,9 @@ export class User {
     @Column()
     username: string;
 
+    @Column()
+    role: string
+
     @Column({ nullable: true })
     refreshToken: string;
 }

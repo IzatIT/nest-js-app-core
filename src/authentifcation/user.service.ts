@@ -3,8 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { SignUpRequest, SignUpResponse } from './interfaces/signup.interface';
-import { SignInRequest, SignInResponse } from './interfaces/signin.interface';
+import { SignUpRequest, SignUpResponse } from './dto/signup.dto';
+import { SignInRequest, SignInResponse } from './dto/signin.dto';
 import { ACCESS_TOKEN_EXPIRATION, BCRYPT_SALT_ROUNDS, REFRESH_TOKEN_EXPIRATION } from './const';
 import { JwtService } from '@nestjs/jwt';
 
@@ -31,6 +31,7 @@ export class UserService {
       firstName: savedUser.firstName,
       lastName: savedUser.lastName,
       isActive: savedUser.isActive,
+      role: savedUser.role,
     };
   }
 
@@ -57,6 +58,7 @@ export class UserService {
       isActive: user.isActive,
       accessToken: accessToken,
       refreshToken: refreshToken,
+      role: user.role,
     };
   }
   async getAllUsers(): Promise<User[]> {
@@ -87,12 +89,22 @@ export class UserService {
         isActive: user.isActive,
         accessToken: newAccessToken,
         refreshToken: newRefreshToken,
+        role: user.role,
       };
     } catch (err) {
       throw new BadRequestException('Invalid or expired refresh token');
     }
   }
+  async getUserById(userId: string): Promise<User> {
+    const user = await this.userRepository.findOne({
+      where: { id: Number(userId) },
+    });
 
+    if (!user) {
+      throw new NotFoundException("User not found");
+    }
+    return user;
+  }
   async changePassword(
     oldPassword: string,
     newPassword: string,
